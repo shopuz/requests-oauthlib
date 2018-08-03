@@ -111,7 +111,7 @@ class OAuth2Session(requests.Session):
     @token.setter
     def token(self, value):
         self._client.token = value
-        self._client.populate_token_attributes(value)
+        self._client._populate_attributes(value)
 
     @property
     def access_token(self):
@@ -212,11 +212,11 @@ class OAuth2Session(requests.Session):
 
         headers = headers or {
             'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'Content-Type': 'application/json',
         }
         self.token = {}
         if method.upper() == 'POST':
-            r = self.post(token_url, data=dict(urldecode(body)),
+            r = self.post(token_url, json=dict(urldecode(body)),
                 timeout=timeout, headers=headers, auth=auth,
                 verify=verify, proxies=proxies)
             log.debug('Prepared fetch token request body %s', body)
@@ -289,12 +289,10 @@ class OAuth2Session(requests.Session):
         if headers is None:
             headers = {
                 'Accept': 'application/json',
-                'Content-Type': (
-                    'application/x-www-form-urlencoded;charset=UTF-8'
-                ),
+                'Content-Type': 'application/json',
             }
 
-        r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
+        r = self.post(token_url, json=dict(urldecode(body)), auth=auth,
             timeout=timeout, headers=headers, verify=verify, withhold_token=True, proxies=proxies)
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
